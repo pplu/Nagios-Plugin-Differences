@@ -3,9 +3,12 @@ package Nagios::Plugin::Differences;
 use strict;
 no warnings;
 
+use base 'Nagios::Plugin';
+
 use Carp;
 use File::Basename qw//;
 use Storable qw//;
+use Digest::MD5;
 
 =head1 NAME
 
@@ -60,9 +63,25 @@ can pass 'file' => '/tmp/xxx' to override the default file
 sub new {
     my ($class, %options) = @_;
 
-    my $self = { 'file' => sprintf("/tmp/_nagios_plugin_%s.tmp",
-                                   File::Basename::basename($0)),
-                 %options };
+    my $file = delete $options{file};
+    my $id = delete $options{id};
+
+    my $self = $class->SUPER::new(%options);
+
+    $self->{ _npd_file } = $file;
+    $self->{ _npd_id }   = $id or '';
+
+    if (not $self->{ _npd_id }) {
+        use Data::Dumper;
+        print Dumper(@ARGV);
+        $self->{ _npd_id } = Digest::MD5::md5_hex(@ARGV);
+    }
+
+    if (not defined $self->{ _npd_file }){
+      $self->{ _npd_file } = sprintf("/tmp/_nagios_plugin_%s%s.tmp",
+                                     File::Basename::basename($0),
+                                     "_$self->{ _npd_id }");
+    }
     bless $self, $class;
 }
 
