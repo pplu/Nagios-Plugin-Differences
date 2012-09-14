@@ -102,6 +102,29 @@ sub new_reading {
     $self->{'current'} = { 'ts' => $ts, 'data' => $data };
 }
 
+=head2 replace_reading
+
+
+
+=cut
+
+sub replace_reading {
+    my ($self, $data) = @_;
+
+    eval {
+       $self->load_last;
+    };
+    if ($@){
+        $self->new_reading($data);
+        $self->persist;
+
+        $np->nagios_exit(UNKNOWN, "Couldn't see last state $@");
+    }
+
+    $self->new_reading($read_data);
+    $self->persist;
+}
+
 =head2 persist([$file])
 
 Write the stored data to the temporary file
@@ -126,7 +149,6 @@ sub load_last {
     $self->{'last'} = $self->{'current'} if (defined $self->{'current'});
     $self->{'current'} = Storable::retrieve($file);
 }
-
 
 #head2 difference_from_zero
 #
