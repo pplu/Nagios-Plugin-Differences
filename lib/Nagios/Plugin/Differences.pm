@@ -110,7 +110,7 @@ Write the stored data to the temporary file
 
 sub persist {
     my ($self, $file) = @_;
-    $file ||= $self->{'file'};
+    $file ||= $self->{ _npd_file };
     Storable::lock_store($self->{'current'}, $file);
 }
 
@@ -122,7 +122,7 @@ Load the last reading from the temporary file.
 
 sub load_last {
     my ($self, $file) = @_;
-    $file ||= $self->{'file'};
+    $file ||= $self->{ _npd_file };
     $self->{'last'} = $self->{'current'} if (defined $self->{'current'});
     $self->{'current'} = Storable::retrieve($file);
 }
