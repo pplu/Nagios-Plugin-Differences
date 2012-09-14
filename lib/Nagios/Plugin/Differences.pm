@@ -118,10 +118,10 @@ sub replace_reading {
         $self->new_reading($data);
         $self->persist;
 
-        $np->nagios_exit(UNKNOWN, "Couldn't see last state $@");
+        $self->nagios_exit(Nagios::Plugin::UNKNOWN, "Couldn't see last state $@");
     }
 
-    $self->new_reading($read_data);
+    $self->new_reading($data);
     $self->persist;
 }
 
